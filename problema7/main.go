@@ -8,7 +8,7 @@ import (
 
 // Objetivo: Implementar un pool de workers que procesa trabajos y retorna resultados.
 // Usa un canal de trabajos y otro de resultados. Cierra canales correctamente.
-// TODO: completa las funciones y la orquestación en main().
+//  completa las funciones y la orquestación en main().
 
 type trabajo struct {
 	ID int
@@ -24,8 +24,13 @@ type resultado struct {
 func worker(id int, jobs <-chan trabajo, results chan<- resultado, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for j := range jobs {
-		// TODO: procesar j (simular trabajo con Sleep)
-
+		// procesar j (simular trabajo con Sleep)
+		time.Sleep(100 * time.Millisecond) // simula trabajo
+		r := resultado{
+			ID:        j.ID,
+			X:         j.X,
+			Procesado: j.X * 2, // Por ejemplo, duplicar el valor de X
+		}
 		fmt.Printf("[worker %d] procesa trabajo %d -> %d\n", id, j.ID, r.Procesado)
 		results <- r
 	}
@@ -41,21 +46,21 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	// TODO: lanzar nWorkers workers
+	// lanzar nWorkers workers
 	wg.Add(nWorkers)
 	for i := 1; i <= nWorkers; i++ {
-
+		go worker(i, jobs, results, &wg)
 	}
 
-	// TODO: productor de trabajos
+	// productor de trabajos
 	go func() {
 		for i := 1; i <= nTrabajos; i++ {
-
+			jobs <- trabajo{ID: i, X: i * 10}
 		}
 		close(jobs) // importante: cerrar para que los workers terminen
 	}()
 
-	// TODO: recolectar resultados en otra goroutine y cerrar results al final
+	// recolectar resultados en otra goroutine y cerrar results al final
 	var wgCollect sync.WaitGroup
 	wgCollect.Add(1)
 	go func() {
