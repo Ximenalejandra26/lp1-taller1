@@ -9,22 +9,26 @@ import (
 
 // Objetivo: Lectores–Escritores con RWMutex sobre un mapa compartido.
 // Varios lectores pueden leer en paralelo; los escritores tienen exclusión mutua.
-// TODO: completa los pasos y observa la diferencia entre Mutex y RWMutex.
+// completa los pasos y observa la diferencia entre Mutex y RWMutex.
 
 type baseDatos struct {
-	mu sync.RWMutex // TODO: cambia a sync.Mutex para comparar comportamiento
+	mu sync.RWMutex // cambia a sync.Mutex para comparar comportamiento
 	m  map[string]int
 }
 
 func (db *baseDatos) leer(clave string) (int, bool) {
-	// TODO: usar RLock/RUnlock (o Lock/Unlock si usas Mutex)
+	//  usar RLock/RUnlock (o Lock/Unlock si usas Mutex)
+	db.mu.RLock()		
+	defer db.mu.RUnlock()
 
 	v, ok := db.m[clave]
 	return v, ok
 }
 
 func (db *baseDatos) escribir(clave string, valor int) {
-	// TODO: usar Lock/Unlock para escritura
+	//  usar Lock/Unlock para escritura
+	db.mu.Lock()
+	defer db.mu.Unlock()
 
 	db.m[clave] = valor
 }
@@ -61,12 +65,12 @@ func main() {
 
 	// precarga
 	for _, k := range claves {
-
+		db.m[k] = rand.Intn(100)
 	}
 
 	var wg sync.WaitGroup
 
-	// TODO: experimenta con # de lectores y escritores
+	// experimenta con # de lectores y escritores
 	nLectores := 5
 	nEscritores := 2
 
